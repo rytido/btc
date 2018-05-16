@@ -57,11 +57,6 @@ channel = grpc.secure_channel('localhost:10009', combined_creds)
 stub = lnrpc.LightningStub(channel)
 
 # now every call will be made with the macaroon already included
-info = stub.GetInfo(ln.GetInfoRequest())
-data = {}
-data['num_active_channels'] = info.num_active_channels
-data['num_peers'] = info.num_peers
-
 peer_info = stub.ListPeers(ln.ListPeersRequest())
 peers = [p.pub_key for p in peer_info.peers]
 
@@ -72,6 +67,11 @@ non_channel_peers = [p for p in peers if p not in channel_peers]
 if len(non_channel_peers)>2:
     peer = non_channel_peers[0]
     stub.DisconnectPeer(ln.DisconnectPeerRequest(pub_key=peer))
+
+info = stub.GetInfo(ln.GetInfoRequest())
+data = {}
+data['num_active_channels'] = info.num_active_channels
+data['num_peers'] = info.num_peers
 
 filename = 'lnd.json'
 saved_data = load_dict(filename)
