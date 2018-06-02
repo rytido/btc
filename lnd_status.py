@@ -60,25 +60,30 @@ stub = lnrpc.LightningStub(channel)
 peer_info = stub.ListPeers(ln.ListPeersRequest())
 peers = [p.pub_key for p in peer_info.peers]
 
-channel_info = stub.ListChannels(ln.ListChannelsRequest())
-channel_peers = set([c.remote_pubkey for c in channel_info.channels])
+channel_info = stub.ListChannels(ln.ListChannelsRequest()).channels
+channel_peers = set([c.remote_pubkey for c in channel_info])
 
 non_channel_peers = [p for p in peers if p not in channel_peers]
-if len(non_channel_peers)>2:
+if len(non_channel_peers)>3:
     peer = non_channel_peers[0]
     stub.DisconnectPeer(ln.DisconnectPeerRequest(pub_key=peer))
 
-info = stub.GetInfo(ln.GetInfoRequest())
 data = {}
+
+data['total_satoshis_sent'] = sum([c.total_satoshis_sent for c in channel_info])
+data['total_satoshis_received'] = sum([c.total_satoshis_received for c in channel_info])
+data['num_inactive_channels'] = sum([1 for c in channel_info if c.active == False])
+
+info = stub.GetInfo(ln.GetInfoRequest())
 data['num_active_channels'] = info.num_active_channels
-data['num_peers'] = info.num_peers
 
 filename = 'lnd.json'
 saved_data = load_dict(filename)
 
 if data != saved_data:
     save_dict(data, filename)
+    data['num_peers'] = info.num_peers
     network_info = stub.GetNetworkInfo(ln.NetworkInfoRequest())
-    data['num_nodes'] = network_info.num_nodes
-    data['num_channels'] = network_info.num_channels
+    data['total_num_nodes'] = network_info.num_nodes
+    data['total_num_channels'] = network_info.num_channels
     slacker('#lnd', show_dict(data))
