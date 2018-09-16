@@ -1,1 +1,1 @@
-cp -r ~/.lnd/data/chain ~/seagate/lnd/data
+cp -r ~/.lnd/data ~/seagate/lnd
