@@ -77,7 +77,7 @@ data['num_inactive_channels'] = sum([1 for c in channel_info if c.active == Fals
 info = stub.GetInfo(ln.GetInfoRequest())
 data['num_active_channels'] = info.num_active_channels
 
-filename = 'lnd.json'
+filename = os.path.expanduser('~/btc/lnd.json')
 saved_data = load_dict(filename)
 
 if data != saved_data:
