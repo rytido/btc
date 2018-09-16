@@ -40,7 +40,7 @@ creds = grpc.ssl_channel_credentials(cert)
 #stub = lnrpc.LightningStub(channel)
 
 def metadata_callback(context, callback):
-    with open(os.path.expanduser('~/.lnd/admin.macaroon'), 'rb') as f:
+    with open(os.path.expanduser('~/.lnd/data/chain/bitcoin/mainnet/admin.macaroon'), 'rb') as f:
         macaroon_bytes = f.read()
         macaroon = codecs.encode(macaroon_bytes, 'hex')
         callback([('macaroon', macaroon)], None)
@@ -64,7 +64,7 @@ channel_info = stub.ListChannels(ln.ListChannelsRequest()).channels
 channel_peers = set([c.remote_pubkey for c in channel_info])
 
 non_channel_peers = [p for p in peers if p not in channel_peers]
-if len(non_channel_peers)>3:
+if len(non_channel_peers)>7:
     peer = non_channel_peers[0]
     stub.DisconnectPeer(ln.DisconnectPeerRequest(pub_key=peer))
 

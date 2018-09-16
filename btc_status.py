@@ -46,7 +46,9 @@ def much_info():
         }
 
         peer_versions = Counter(['peer_' + p['subver'][1:].split(':')[0].lower() for p in peers])
-        cleaned = {**cleaned, **peer_versions}
+        ban_scores = Counter(['score_' + str(p['banscore']) for p in peers])
+
+        cleaned = {**cleaned, **peer_versions, **ban_scores}
         return cleaned
 
 
