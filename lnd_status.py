@@ -45,7 +45,6 @@ cert_creds = grpc.ssl_channel_credentials(cert)
 # now build meta data credentials
 auth_creds = grpc.metadata_call_credentials(metadata_callback)
 # combine the cert credentials and the macaroon auth credentials
-# such that every call is properly encrypted and authenticated
 combined_creds = grpc.composite_channel_credentials(cert_creds, auth_creds)
 # finally pass in the combined credentials when creating a channel
 channel = grpc.secure_channel('localhost:10009', combined_creds)
