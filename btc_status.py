@@ -15,41 +15,41 @@ def slacker(channel, text):
 
 cnxn_str = "http://{}:{}@{}".format(os.environ['RPC_USER'], os.environ['RPC_PASSWORD'], os.environ['NODE_IP'])
 def engine(commands):
-        return AuthServiceProxy(cnxn_str).batch_(commands)
+    return AuthServiceProxy(cnxn_str).batch_(commands)
 
 def shift_fee(fee):
-        return round(float(fee * 100000), 1)
+    return round(float(fee * 100000), 1)
 
 def get_tx(txid):
-        return engine([["getrawtransaction", txid, True]])[0]
+    return engine([["getrawtransaction", txid, True]])[0]
 
 def much_info():
-        commands = [["getpeerinfo"], ["getblockcount"], ["getmempoolinfo"], ["getbestblockhash"],
-                        ["estimatesmartfee", 1, "ECONOMICAL"], ["estimatesmartfee", 6, "ECONOMICAL"], ["estimatesmartfee", 72, "ECONOMICAL"]]
-        names = ["_".join(str(s) for s in c) for c in commands]
-        results = engine(commands)
-        kv = dict(zip(names, results))
-        block = engine([["getblock", kv["getbestblockhash"]]])[0]
-        peers = kv["getpeerinfo"]
+	commands = [["getpeerinfo"], ["getblockcount"], ["getmempoolinfo"], ["getbestblockhash"],
+					["estimatesmartfee", 1, "ECONOMICAL"], ["estimatesmartfee", 6, "ECONOMICAL"], ["estimatesmartfee", 72, "ECONOMICAL"]]
+	names = ["_".join(str(s) for s in c) for c in commands]
+	results = engine(commands)
+	kv = dict(zip(names, results))
+	block = engine([["getblock", kv["getbestblockhash"]]])[0]
+	peers = kv["getpeerinfo"]
 
-        cleaned = {
-        "peers":len(peers),
-        "blocks":kv["getblockcount"], #['blocks']
-        "block_tx":len(block['tx']),
-        "block_mb":round(block['size']/1000000, 4),
-        #"difficulty":round(float(kv["getblockchaininfo"]['difficulty']/1000000000000), 3),
-        "memsize_tx":kv["getmempoolinfo"]['size'],
-        "memsize_mb":round(kv["getmempoolinfo"]['bytes']/1000000, 2),
-        "feerate_01block":shift_fee(kv["estimatesmartfee_1_ECONOMICAL"]['feerate']),
-        "feerate_01hour":shift_fee(kv["estimatesmartfee_6_ECONOMICAL"]['feerate']),
-        "feerate_12hour":shift_fee(kv["estimatesmartfee_72_ECONOMICAL"]['feerate']),
-        }
+	cleaned = {
+	"peers":len(peers),
+	"blocks":kv["getblockcount"], #['blocks']
+	"block_tx":len(block['tx']),
+	"block_mb":round(block['size']/1000000, 4),
+	#"difficulty":round(float(kv["getblockchaininfo"]['difficulty']/1000000000000), 3),
+	"memsize_tx":kv["getmempoolinfo"]['size'],
+	"memsize_mb":round(kv["getmempoolinfo"]['bytes']/1000000, 2),
+	"feerate_01block":shift_fee(kv["estimatesmartfee_1_ECONOMICAL"]['feerate']),
+	"feerate_01hour":shift_fee(kv["estimatesmartfee_6_ECONOMICAL"]['feerate']),
+	"feerate_12hour":shift_fee(kv["estimatesmartfee_72_ECONOMICAL"]['feerate']),
+	}
 
-        peer_versions = Counter(['peer_' + p['subver'][1:].split(':')[0].lower() for p in peers])
-        ban_scores = Counter(['score_' + str(p['banscore']) for p in peers])
+	peer_versions = Counter(['peer_' + p['subver'][1:].split(':')[0].lower() for p in peers])
+	ban_scores = Counter(['score_' + str(p['banscore']) for p in peers])
 
-        cleaned = {**cleaned, **peer_versions, **ban_scores}
-        return cleaned
+	cleaned = {**cleaned, **peer_versions, **ban_scores}
+	return cleaned
 
 
 infostr = "\n".join("%s: %s" % (k, v) for k,v in sorted(much_info().items()))
