@@ -1,10 +1,12 @@
 import os
 import json
 import requests
+
+import codecs
 import rpc_pb2 as ln
 import rpc_pb2_grpc as lnrpc
 import grpc
-import codecs
+import pandas as pd
 
 def slacker(channel, text):
     webhook_url = os.environ['SLACK']
@@ -57,6 +59,10 @@ peers = [p.pub_key for p in peer_info.peers]
 channel_info = stub.ListChannels(ln.ListChannelsRequest()).channels
 channel_peers = set([c.remote_pubkey for c in channel_info])
 
+fields = ['remote_pubkey', 'chan_id', 'active', 'capacity', 'local_balance', 'remote_balance', 'csv_delay']
+chan_data = [[getattr(c, f) for f in fields] for c in channel_info]
+df_chan = pd.DataFrame(chan_data, columns=fields).set_index('chan_id')
+
 non_channel_peers = [p for p in peers if p not in channel_peers]
 if len(non_channel_peers)>7:
     peer = non_channel_peers[0]
@@ -80,4 +86,6 @@ if data != saved_data:
     network_info = stub.GetNetworkInfo(ln.NetworkInfoRequest())
     data['total_num_nodes'] = network_info.num_nodes
     data['total_num_channels'] = network_info.num_channels
+    data['capital_local'] = int(df_chan.local_balance.sum())
+    data['capital_remote'] = int(df_chan.remote_balance.sum())
     slacker('#lnd', show_dict(data))
