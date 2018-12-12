@@ -1,6 +1,6 @@
 #!/bin/bash
 lncli stop
-sleep 2
+sudo systemctl stop lnd.service
 bitcoin-cli stop
-sleep 2
-reboot
+sudo systemctl stop bitcoind.service
+sudo reboot
