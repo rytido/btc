@@ -1,6 +1,7 @@
 *.log
 *.json
 *.pyc
+*.txt
 __pycache__
 googleapis
 routes
