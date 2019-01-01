@@ -27,6 +27,13 @@ def get_creds():
     combined_creds = grpc.composite_channel_credentials(cert_creds, auth_creds)
     return combined_creds
 
+def is_onion(stub, pubkey):
+    nodeinfo = stub.GetNodeInfo(ln.NodeInfoRequest(pub_key=pubkey))
+    if nodeinfo.node.addresses:
+        return '.onion' in nodeinfo.node.addresses[0].addr
+    else:
+        return False
+
 channel_options = [
     ('grpc.max_message_length', MESSAGE_SIZE_MB),
     ('grpc.max_receive_message_length', MESSAGE_SIZE_MB)
@@ -40,8 +47,14 @@ identity_pubkey = stub.GetInfo(ln.GetInfoRequest()).identity_pubkey
 
 lgraph = stub.DescribeGraph(ln.ChannelGraphRequest())
 edges = lgraph.edges
-#nodes = lgraph.nodes
+nodes = lgraph.nodes
 
 data = [(e.node1_pub, e.node2_pub, {"weight": e.capacity}) for e in edges]
 
-json.dump(data, open("lightning_graph.json", 'w'))
+json.dump(data, open("lightning_graph.json", "w"))
+
+
+onions = [n.pub_key for n in nodes if is_onion(stub, n.pub_key)]
+print(len(onions))
+
+json.dump(onions, open("onions.json", "w"))
