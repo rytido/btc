@@ -22,7 +22,7 @@ def compute_score(paths, nodes):
         if len(path) > 1:
             hops = len(path) - 1
             capacity = nodes[id]
-            hop_data.append(capacity / hops)
+            hop_data.append(np.log(capacity) / hops)
     return sum(hop_data) / len(hop_data)
 
 def make_graph(id=None):
@@ -40,7 +40,10 @@ def make_graph(id=None):
 current_score, hop_distribution = make_graph()
 print(current_score, hop_distribution)
 
-for id in nodes.keys():
+onions = json.load(open("onions.json"))
+
+#for id in nodes.keys():
+for id in onions:
     new_score, hop_distribution = make_graph(id)
     if new_score > current_score:
         print(new_score, hop_distribution, id)
