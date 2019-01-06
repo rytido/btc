@@ -43,6 +43,7 @@ def much_info():
     "feerate_01block":shift_fee(kv["estimatesmartfee_1_ECONOMICAL"]['feerate']),
     "feerate_01hour":shift_fee(kv["estimatesmartfee_6_ECONOMICAL"]['feerate']),
     "feerate_12hour":shift_fee(kv["estimatesmartfee_72_ECONOMICAL"]['feerate']),
+    "onion_cnxns":sum(1 for p in peers if 'onion' in  p['addrlocal'])
     }
 
     peer_versions = Counter(['peer_' + p['subver'][1:].split(':')[0].lower() for p in peers])
