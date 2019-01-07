@@ -4,6 +4,15 @@ import requests
 from collections import Counter
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 
+def save_dict(data, filename):
+    json.dump(data, open(filename, 'w'))
+
+def load_dict(filename):
+    if os.path.exists(filename):
+        return json.load(open(filename))
+    else:
+        return {}
+
 def slacker(channel, text):
     webhook_url = os.environ['SLACK']
     slack_data = {"channel": channel, "text": text}
@@ -52,10 +61,14 @@ def much_info():
     cleaned = {**cleaned, **peer_versions, **ban_scores}
     return cleaned
 
+data = much_info()
+filename = os.path.expanduser('~/btc/btc.json')
+saved_data = load_dict(filename)
 
-infostr = "\n".join("%s: %s" % (k, v) for k,v in sorted(much_info().items()))
-
-slacker('#alerts', infostr)
+if data["peers"] != saved_data.get("peers", 0) or data["blocks"] - saved_data.get("blocks", 0) >= 16:
+    infostr = "\n".join("%s: %s" % (k, v) for k,v in sorted(data.items()))
+    slacker('#alerts', infostr)
+    save_dict(data, filename)
 
 """
 blocktx = engine([["getblock", kv["getbestblockhash"], 2]])[0]['tx']
