@@ -34,8 +34,9 @@ fields = [
     "local_balance",
     "remote_balance",
     "csv_delay",
+    "private",
 ]
 chan_data = [[getattr(c, f) for f in fields] for c in channel_info]
 df_chan = pd.DataFrame(chan_data, columns=fields).set_index("chan_id")
-print(df_chan.sort_values(["active", "capacity"], ascending=False))
+print(df_chan.sort_values(["active", "capacity", "private"], ascending=False))
 print("\ncapital: {}".format(df_chan.local_balance.sum()))
