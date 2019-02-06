@@ -41,3 +41,7 @@ invoice_request = ln.Invoice(value=10000, expiry=7200)
 invoice_response = stub.AddInvoice(invoice_request)
 payment_request = invoice_response.payment_request
 print(payment_request)
+
+"""
+lnbc100u1pw95fnupp5s9dvrxp4hh3nsxscaq8afdezzlzhf3ar7cegvurqvkjyau2fsw3sdqqcqzysxqr8pqyj52cwuwhwcf7d2rekgax2j8ysxwhaklw94yfhv9agjr9ye4kkgzy435vc2a84ufld7qurc37ghsh8gddrphjrfd35xyy678ft0x4tqqcvffcz
+"""
