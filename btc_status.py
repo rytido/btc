@@ -27,8 +27,8 @@ def slacker(channel, text):
     return response.text
 
 
-cnxn_str = "http://{}:{}@{}".format(
-    os.environ["RPC_USER"], os.environ["RPC_PASSWORD"], os.environ["NODE_IP"]
+cnxn_str = "http://{}:{}@127.0.0.1:8332".format(
+    os.environ["RPC_USER"], os.environ["RPC_PASSWORD"]
 )
 
 
