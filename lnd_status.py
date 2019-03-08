@@ -63,6 +63,10 @@ channel = grpc.secure_channel("localhost:10009", combined_creds)
 stub = lnrpc.LightningStub(channel)
 
 # now every call will be made with the macaroon already included
+
+list_req = ln.ListInvoiceRequest(pending_only=True, num_max_invoices=1, reversed=True)
+invoice_num = stub.ListInvoices(list_req).invoices[-1].add_index
+
 peer_info = stub.ListPeers(ln.ListPeersRequest())
 peers = [p.pub_key for p in peer_info.peers]
 
@@ -91,6 +95,7 @@ data = {}
 data["total_satoshis_sent"] = sum([c.total_satoshis_sent for c in channel_info])
 data["total_satoshis_received"] = sum([c.total_satoshis_received for c in channel_info])
 data["num_inactive_channels"] = sum([1 for c in channel_info if c.active == False])
+data["invoice_num"] = invoice_num
 
 info = stub.GetInfo(ln.GetInfoRequest())
 data["num_active_channels"] = info.num_active_channels
